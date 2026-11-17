@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Management Toolkit | Teresa Akumu Opiyo</title>
+<meta name="description" content="Free browser based tools: risk register with heat map, task tracker and status report generator.">
+<style>
+:root{--bg:#f6f8fb;--panel:#fff;--ink:#1c2733;--muted:#5a6a7a;--line:#dbe3ec;--navy:#1f4e79;--navy2:#2f6aa3;--chip:#e8eff7;--good:#4c9f70;--mid:#d9a21b;--bad:#c4473a}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1720;--panel:#17212c;--ink:#e6edf4;--muted:#9fb0c1;--line:#2a3a4b;--navy:#7fb2e6;--navy2:#5b97d4;--chip:#223244}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{margin:0;padding:14px 0 2px;font-size:20px;color:var(--navy)}header p{margin:0 0 6px;color:var(--muted);font-size:13px}
+nav{display:flex;gap:4px;overflow-x:auto}nav button{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;padding:10px 12px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:700}
+.panel{display:none;padding:20px 0}.panel.on{display:block}
+h2{margin:0 0 4px;color:var(--navy);font-size:22px}.lead{color:var(--muted);margin:0 0 16px;max-width:760px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.row>label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;flex:1 1 140px}
+.row>label.wide{flex:3 1 260px}
+input,select,textarea{font:inherit;font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%}
+textarea{min-height:70px;resize:vertical}
+button.b{font:inherit;font-size:14px;border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:6px;padding:8px 14px;cursor:pointer}
+@media (prefers-color-scheme:dark){button.b{color:#0f1720}}
+button.b.alt{background:none;color:var(--navy)}button.b.sm{padding:3px 8px;font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.kpi b{display:block;font-size:22px;color:var(--navy)}.kpi span{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px}
+.tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;color:#fff}.High,.Red,.Blocked{background:var(--bad)}.Medium,.Amber,.Inprogress{background:var(--mid);color:#222}.Low,.Green,.Done{background:var(--good)}.Notstarted{background:#7b8a99}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.matrix{display:grid;grid-template-columns:34px repeat(5,1fr);gap:3px;font-size:12px}.matrix div{text-align:center;padding:10px 2px;border-radius:5px;min-height:42px}.matrix .ax{color:var(--muted);padding:10px 0}
+.bar{height:12px;border-radius:6px;background:var(--chip);overflow:hidden}.bar i{display:block;height:100%;background:var(--navy2)}
+select.rs,select.ts{width:auto;min-width:104px}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;font:13px/1.5 Arial,Helvetica,sans-serif;margin:0}
+.note{color:var(--muted);font-size:12px}.od{color:var(--bad);font-weight:700}
+footer{padding:10px 16px 30px;color:var(--muted);font-size:12px}
+@media print{header,nav,.noprint{display:none}.panel{display:none}.panel.on{display:block}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Project Management Toolkit</h1><p>Free browser tools by Teresa Akumu Opiyo. Your data stays in your browser and is never uploaded.</p>
+<nav id="tabs"><button data-t="risk" class="on">Risk Register</button><button data-t="tasks">Task Tracker</button><button data-t="report">Status Report</button><button data-t="help">How to use</button></nav></div></header>
+<main class="wrap">
+
+<section id="risk" class="panel on">
+<h2>Risk Register</h2><p class="lead">Add risks, rate probability and impact from 1 to 5, and see them ranked and placed on a heat map.</p>
+<div class="kpis" id="rk"></div>
+<div class="card"><div class="row">
+<label class="wide">Risk description<input id="rd" placeholder="e.g. Key supplier delivers late"></label>
+<label>Category<select id="rc"><option>Schedule</option><option>Budget</option><option>People</option><option>Suppliers</option><option>Communication</option><option>Compliance</option><option>Delivery</option></select></label>
+<label>Probability (1 to 5)<select id="rp"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+<label>Impact (1 to 5)<select id="ri"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+<label class="wide">Mitigation action<input id="rm" placeholder="What will reduce the risk?"></label>
+<label>Owner<input id="ro" placeholder="Name"></label>
+<button class="b" id="radd">Add risk</button></div></div>
+<div class="grid"><div class="card" style="overflow:auto"><table><thead><tr><th>Risk</th><th>P</th><th>I</th><th>Score</th><th>Rating</th><th>Mitigation / owner</th><th>Status</th><th></th></tr></thead><tbody id="rt"></tbody></table><p class="note" id="rempty"></p></div>
+<div class="card"><b>Heat map</b> <span class="note">(rows: probability, columns: impact; numbers show how many risks)</span><div class="matrix" id="mx" style="margin-top:10px"></div></div></div>
+<div class="noprint"><button class="b alt" id="rsample">Load sample risks</button> <button class="b alt" id="rcsv">Download CSV</button> <button class="b alt" id="rclear">Clear all</button></div>
+</section>
+
+<section id="tasks" class="panel">
+<h2>Task Tracker</h2><p class="lead">Track tasks, owners and deadlines. Overdue tasks are highlighted and progress updates automatically.</p>
+<div class="kpis" id="tk"></div>
+<div class="card"><div class="row">
+<label class="wide">Task<input id="tn" placeholder="e.g. Draft project charter"></label><label>Owner<input id="to"></label>
+<label>Due date<input id="td" type="date"></label>
+<button class="b" id="tadd">Add task</button></div></div>
+<div class="card" style="overflow:auto"><div class="bar" style="margin-bottom:10px"><i id="tbar" style="width:0"></i></div>
+<table><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Days left</th><th>Status</th><th></th></tr></thead><tbody id="tt"></tbody></table><p class="note" id="tempty"></p></div>
+<div class="noprint"><button class="b alt" id="tsample">Load sample tasks</button> <button class="b alt" id="tcsv">Download CSV</button> <button class="b alt" id="tclear">Clear all</button></div>
+</section>
+
+<section id="report" class="panel">
+<h2>Status Report Generator</h2><p class="lead">Fill in the form. The report pulls your top risks and task progress automatically. Copy it into an email or print it.</p>
+<div class="grid"><div class="card">
+<div class="row"><label class="wide">Project name<input id="pn" value=""></label><label>Period<input id="pp" placeholder="e.g. 1 to 31 March"></label></div>
+<div class="row" style="margin-top:8px"><label>Overall status<select id="ps"><option>Green</option><option>Amber</option><option>Red</option></select></label><label class="wide">One sentence summary<input id="psum"></label></div>
+<label style="display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;margin-top:8px">Progress this period (one point per line)<textarea id="pprog"></textarea></label>
+<label style="display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;margin-top:8px">Next steps (one per line)<textarea id="pnext"></textarea></label>
+<div class="row" style="margin-top:8px"><label>Budget approved<input id="pba" type="number" min="0"></label><label>Spent to date<input id="pbs" type="number" min="0"></label><label>Forecast at completion<input id="pbf" type="number" min="0"></label></div>
+<label style="display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;margin-top:8px">Decisions or support needed (one per line)<textarea id="pdec"></textarea></label>
+<div style="margin-top:10px"><button class="b alt" id="psample">Fill with example</button></div></div>
+<div class="card"><pre id="pout"></pre><div class="noprint" style="margin-top:10px"><button class="b" id="pcopy">Copy report</button> <button class="b alt" onclick="window.print()">Print</button> <span class="note" id="pmsg"></span></div></div></div>
+</section>
+
+<section id="help" class="panel">
+<h2>How to use</h2>
+<div class="card"><ol><li><b>Risk Register:</b> add each risk with probability and impact. Score = probability x impact. 15 or more is High, 8 to 14 is Medium, below 8 is Low.</li>
+<li><b>Task Tracker:</b> add tasks with an owner and due date, then change status as work progresses.</li>
+<li><b>Status Report:</b> fill the form and copy the formatted report. It adds your top three risks and the task summary for you.</li>
+<li><b>Your data:</b> saved in this browser only (local storage). Use Download CSV to keep a copy. Clearing browser data removes it.</li></ol>
+<p class="note">Guides and worked examples are in the repository folders <code>docs</code> and <code>examples</code>. The sample data in this tool is fictional.</p></div>
+</section>
+</main>
+<footer class="wrap">Built by Teresa Akumu Opiyo. MIT License.</footer>
+
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)};
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return []}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function rating(s){return s>=15?"High":s>=8?"Medium":"Low"}
+function csv(rows,name){var t=rows.map(function(r){return r.map(function(c){return '"'+String(c==null?"":c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv"}));a.download=name;a.click()}
+document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){document.querySelectorAll("#tabs button").forEach(function(x){x.classList.toggle("on",x===b)});document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("on",p.id===b.dataset.t)});if(b.dataset.t==="report")report()}});
+
+/* risks */
+var risks=load("pmt_risks");
+function renderRisks(){
+  var rs=risks.slice().sort(function(a,b){return b.p*b.i-a.p*a.i});
+  var h=0,m=0,l=0,open=0;risks.forEach(function(r){var s=r.p*r.i,g=rating(s);if(g==="High")h++;else if(g==="Medium")m++;else l++;if(r.status!=="Closed")open++});
+  $("#rk").innerHTML=[["Total risks",risks.length],["High",h],["Medium",m],["Low",l],["Open",open]].map(function(k){return '<div class="kpi"><b>'+k[1]+'</b><span>'+k[0]+'</span></div>'}).join("");
+  $("#rt").innerHTML=rs.map(function(r){var s=r.p*r.i,g=rating(s);return '<tr><td>'+esc(r.d)+'<br><span class="note">'+esc(r.c)+'</span></td><td>'+r.p+'</td><td>'+r.i+'</td><td><b>'+s+'</b></td><td><span class="tag '+g+'">'+g+'</span></td><td>'+esc(r.m)+'<br><span class="note">'+esc(r.o)+'</span></td><td><select data-id="'+r.id+'" class="rs"><option'+(r.status==="Open"?" selected":"")+'>Open</option><option'+(r.status==="In progress"?" selected":"")+'>In progress</option><option'+(r.status==="Closed"?" selected":"")+'>Closed</option></select></td><td><button class="b alt sm" data-del="'+r.id+'">Remove</button></td></tr>'}).join("");
+  $("#rempty").textContent=risks.length?"":"No risks yet. Add one above or load the sample risks.";
+  var cell=function(p,i){var n=risks.filter(function(r){return r.p===p&&r.i===i}).length,g=rating(p*i),bg=g==="High"?"#c4473a":g==="Medium"?"#d9a21b":"#4c9f70";return '<div style="background:'+bg+(n?"":"55")+';color:'+(g==="Medium"?"#222":"#fff")+';font-weight:700">'+(n||"")+'</div>'};
+  var x='<div class="ax"></div>'+[1,2,3,4,5].map(function(i){return '<div class="ax">I'+i+'</div>'}).join("");
+  for(var p=5;p>=1;p--){x+='<div class="ax">P'+p+'</div>';for(var i=1;i<=5;i++)x+=cell(p,i)}
+  $("#mx").innerHTML=x;
+  document.querySelectorAll(".rs").forEach(function(s){s.onchange=function(){risks.forEach(function(r){if(String(r.id)===s.dataset.id)r.status=s.value});save("pmt_risks",risks);renderRisks()}});
+  document.querySelectorAll("[data-del]").forEach(function(b){b.onclick=function(){risks=risks.filter(function(r){return String(r.id)!==b.dataset.del});save("pmt_risks",risks);renderRisks()}});
+}
+$("#radd").onclick=function(){var d=$("#rd").value.trim();if(!d){$("#rd").focus();return}risks.push({id:Date.now()+Math.random(),d:d,c:$("#rc").value,p:+$("#rp").value,i:+$("#ri").value,m:$("#rm").value,o:$("#ro").value,status:"Open"});save("pmt_risks",risks);$("#rd").value="";$("#rm").value="";renderRisks()};
+$("#rsample").onclick=function(){risks=risks.concat([
+ {d:"Key supplier delivers late",c:"Suppliers",p:4,i:4,m:"Agree backup supplier and order two weeks earlier",o:"Project manager",status:"Open"},
+ {d:"Budget overspend on venue and travel",c:"Budget",p:3,i:3,m:"Weekly budget check and approval limit",o:"Finance contact",status:"Open"},
+ {d:"Low participant registration",c:"Delivery",p:3,i:2,m:"Start communications earlier and send two reminders",o:"Communications",status:"In progress"},
+ {d:"Key team member unavailable",c:"People",p:2,i:5,m:"Cross train a deputy and document processes",o:"Project manager",status:"Open"},
+ {d:"Data protection issue with participant list",c:"Compliance",p:2,i:4,m:"Restrict access and follow privacy notice",o:"Coordinator",status:"Open"}
+ ].map(function(r,k){r.id=Date.now()+k;return r}));save("pmt_risks",risks);renderRisks()};
+$("#rcsv").onclick=function(){csv([["Risk","Category","Probability","Impact","Score","Rating","Mitigation","Owner","Status"]].concat(risks.map(function(r){return [r.d,r.c,r.p,r.i,r.p*r.i,rating(r.p*r.i),r.m,r.o,r.status]})),"risk-register.csv")};
+$("#rclear").onclick=function(){if(confirm("Remove all risks?")){risks=[];save("pmt_risks",risks);renderRisks()}};
+
+/* tasks */
+var tasks=load("pmt_tasks");
+function days(d){if(!d)return null;var t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(d+"T00:00:00")-t)/864e5)}
+function renderTasks(){
+  var n=tasks.length,done=tasks.filter(function(t){return t.s==="Done"}).length,prog=tasks.filter(function(t){return t.s==="In progress"}).length,blocked=tasks.filter(function(t){return t.s==="Blocked"}).length,od=tasks.filter(function(t){var d=days(t.d);return t.s!=="Done"&&d!==null&&d<0}).length;
+  $("#tk").innerHTML=[["Tasks",n],["Done",done],["In progress",prog],["Blocked",blocked],["Overdue",od],["Complete",(n?Math.round(done/n*100):0)+"%"]].map(function(k){return '<div class="kpi"><b>'+k[1]+'</b><span>'+k[0]+'</span></div>'}).join("");
+  $("#tbar").style.width=(n?done/n*100:0)+"%";
+  $("#tt").innerHTML=tasks.slice().sort(function(a,b){return (a.d||"9").localeCompare(b.d||"9")}).map(function(t){var d=days(t.d),dl=t.s==="Done"||d===null?"":(d<0?'<span class="od">'+Math.abs(d)+' overdue</span>':d);var cls=t.s.replace(/ /g,"");return '<tr><td>'+esc(t.n)+'</td><td>'+esc(t.o)+'</td><td>'+esc(t.d||"")+'</td><td>'+dl+'</td><td><select class="ts" data-id="'+t.id+'">'+["Not started","In progress","Blocked","Done"].map(function(s){return '<option'+(s===t.s?" selected":"")+'>'+s+'</option>'}).join("")+'</select></td><td><button class="b alt sm" data-td="'+t.id+'">Remove</button></td></tr>'}).join("");
+  $("#tempty").textContent=n?"":"No tasks yet. Add one above or load the sample tasks.";
+  document.querySelectorAll(".ts").forEach(function(s){s.onchange=function(){tasks.forEach(function(t){if(String(t.id)===s.dataset.id)t.s=s.value});save("pmt_tasks",tasks);renderTasks()}});
+  document.querySelectorAll("[data-td]").forEach(function(b){b.onclick=function(){tasks=tasks.filter(function(t){return String(t.id)!==b.dataset.td});save("pmt_tasks",tasks);renderTasks()}});
+}
+$("#tadd").onclick=function(){var n=$("#tn").value.trim();if(!n){$("#tn").focus();return}tasks.push({id:Date.now()+Math.random(),n:n,o:$("#to").value,d:$("#td").value,s:"Not started"});save("pmt_tasks",tasks);$("#tn").value="";renderTasks()};
+$("#tsample").onclick=function(){function off(k){var d=new Date();d.setDate(d.getDate()+k);return d.toISOString().slice(0,10)}
+ tasks=tasks.concat([["Draft project charter","Project manager",-3,"Done"],["Confirm budget with sponsor","Project manager",2,"In progress"],["Book venue and catering","Coordinator",7,"Not started"],["Send invitations","Communications",10,"Not started"],["Agree supplier contract","Coordinator",-1,"Blocked"]].map(function(a,k){return {id:Date.now()+k,n:a[0],o:a[1],d:off(a[2]),s:a[3]}}));save("pmt_tasks",tasks);renderTasks()};
+$("#tcsv").onclick=function(){csv([["Task","Owner","Due","Status"]].concat(tasks.map(function(t){return [t.n,t.o,t.d,t.s]})),"tasks.csv")};
+$("#tclear").onclick=function(){if(confirm("Remove all tasks?")){tasks=[];save("pmt_tasks",tasks);renderTasks()}};
+
+/* report */
+var F=["pn","pp","ps","psum","pprog","pnext","pba","pbs","pbf","pdec"];
+function lines(v){return v.split("\n").map(function(s){return s.trim()}).filter(Boolean)}
+function report(){
+  var v={};F.forEach(function(k){v[k]=$("#"+k).value});try{localStorage.setItem("pmt_report",JSON.stringify(v))}catch(e){}
+  var L=[];L.push("PROJECT STATUS REPORT");L.push("Project: "+(v.pn||"[project name]")+(v.pp?" | Period: "+v.pp:""));L.push("");
+  L.push("OVERALL STATUS: "+v.ps.toUpperCase());if(v.psum)L.push(v.psum);L.push("");
+  L.push("PROGRESS THIS PERIOD");(lines(v.pprog).length?lines(v.pprog):["[add progress points]"]).forEach(function(s){L.push("- "+s)});L.push("");
+  L.push("NEXT STEPS");(lines(v.pnext).length?lines(v.pnext):["[add next steps]"]).forEach(function(s){L.push("- "+s)});L.push("");
+  var n=tasks.length,done=tasks.filter(function(t){return t.s==="Done"}).length,od=tasks.filter(function(t){var d=days(t.d);return t.s!=="Done"&&d!==null&&d<0}).length;
+  if(n){L.push("TASKS");L.push("- "+done+" of "+n+" tasks complete ("+Math.round(done/n*100)+"%), "+od+" overdue");L.push("")}
+  var a=+v.pba,s=+v.pbs,f=+v.pbf;if(a||s||f){L.push("BUDGET");L.push("- Approved: "+a.toLocaleString("en")+" | Spent: "+s.toLocaleString("en")+" ("+(a?Math.round(s/a*100):0)+"% of approved) | Forecast: "+f.toLocaleString("en")+" | Variance: "+(a-f).toLocaleString("en"));L.push("")}
+  var top=risks.filter(function(r){return r.status!=="Closed"}).sort(function(x,y){return y.p*y.i-x.p*x.i}).slice(0,3);
+  if(top.length){L.push("TOP RISKS");top.forEach(function(r){L.push("- "+r.d+" ("+rating(r.p*r.i)+", score "+r.p*r.i+"). Action: "+(r.m||"to be agreed")+(r.o?" ("+r.o+")":""))});L.push("")}
+  if(lines(v.pdec).length){L.push("DECISIONS OR SUPPORT NEEDED");lines(v.pdec).forEach(function(s){L.push("- "+s)})}
+  $("#pout").textContent=L.join("\n").trim();
+}
+F.forEach(function(k){$("#"+k).addEventListener("input",report)});
+try{var sv=JSON.parse(localStorage.getItem("pmt_report"));if(sv)F.forEach(function(k){if(sv[k]!=null)$("#"+k).value=sv[k]})}catch(e){}
+$("#psample").onclick=function(){var s={pn:"Regional Training Rollout",pp:"1 to 31 March",ps:"Amber",psum:"Training is on track but venue costs are above forecast.",pprog:"Training materials approved by the sponsor\nVenue and catering booked for three regional sessions\n42 of 60 participants registered",pnext:"Send reminders to unregistered participants\nConfirm speakers for session two\nReview venue costs with finance",pba:"20000",pbs:"11500",pbf:"21500",pdec:"Approve EUR 1,500 extra for venue costs by 15 March"};F.forEach(function(k){$("#"+k).value=s[k]});report()};
+$("#pcopy").onclick=function(){var t=$("#pout").textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){$("#pmsg").textContent="Copied."},function(){var r=document.createRange();r.selectNodeContents($("#pout"));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);$("#pmsg").textContent="Press Ctrl+C to copy."})};
+renderRisks();renderTasks();report();
+})();
+</script>
+</body>
+</html>
